@@ -10,7 +10,8 @@
 
 Read the CSV file and eliminate NA records
 
-```{r,echo=TRUE}
+
+```r
 dsRaw <- read.csv(file.path(getwd(), "activity.csv"))
 good<-complete.cases(dsRaw[,"steps"])
 ds<-dsRaw[good,]
@@ -26,28 +27,42 @@ ds<-dsRaw[good,]
 
 Aggregate the number of steps taken each day.
 
-```{r,echo=TRUE}
+
+```r
 dsDaily<-aggregate(steps~date,ds,FUN=sum)
 ```
 
 Plot a histogram of the total number of steps taken each day.
 
-```{r,echo=TRUE}
+
+```r
 hist(dsDaily$steps,main="Histogram for Number of Steps per Day",,xlab="Number of steps")
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
 Calculate and report the mean number of steps taken per day
 
-```{r,echo=TRUE}
+
+```r
 dmean <- mean(dsDaily$steps)
 print(paste("the mean number of steps taken per day is : ", as.character(dmean)))
 ```
 
+```
+## [1] "the mean number of steps taken per day is :  10766.1886792453"
+```
+
 Calculate and report the median total number of steps taken per day
 
-```{r,echo=TRUE}
+
+```r
 dmedian <- median(dsDaily$steps)
 print(paste("the median total number of steps taken per day is : ", as.character(dmedian)))
+```
+
+```
+## [1] "the median total number of steps taken per day is :  10765"
 ```
 
 ## What is the average daily activity pattern?
@@ -58,18 +73,27 @@ print(paste("the median total number of steps taken per day is : ", as.character
 
 Aggregate the average number of steps taken by 5-minute interval.
 
-```{r,echo=TRUE}
+
+```r
 dsInterval<-aggregate(steps~interval,ds,FUN=mean)
 ```
 
 Plot a time series of the 5-minute interval and the average number of steps taken across all days.
 
-```{r,echo=TRUE}
+
+```r
 plot(dsInterval$steps, type="l",xlab="interval",ylab="meanSteps")
 ```
 
-```{r,echo=TRUE}
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+
+
+```r
 print(paste("The interval with the most steps is the interval #", as.character(which.max(dsInterval$steps))))
+```
+
+```
+## [1] "The interval with the most steps is the interval # 104"
 ```
 
 ## Imputing missing values
@@ -88,47 +112,94 @@ print(paste("The interval with the most steps is the interval #", as.character(w
 
 total number of missing values in the dataset
 
-```{r,echo=TRUE}
+
+```r
 bad<-is.na(dsRaw)
 tbad<-table(bad)
 print(paste("Total number of missing values in the dataset : ", as.character(tbad[2])))
+```
+
+```
+## [1] "Total number of missing values in the dataset :  2304"
 ```
 
 Use the [VIM](http://cran.r-project.org/web/packages/VIM/index.html) package to impute missing values of the dataset.
 Use k-Nearest Neighbour Imputation.
 The `kNN` function returns a dataset with all `NA`s replaced.
 
-```{r,echo=TRUE}
+
+```r
 library(VIM)
+```
+
+```
+## Warning: package 'VIM' was built under R version 3.1.1
+```
+
+```
+## Loading required package: colorspace
+## Loading required package: grid
+## VIM is ready to use. 
+##  Since version 4.0.0 the GUI is in its own package VIMGUI.
+## 
+##           Please use the package to use the new (and old) GUI.
+## 
+## 
+## Attaching package: 'VIM'
+## 
+## The following object is masked from 'package:datasets':
+## 
+##     sleep
+```
+
+```r
 dsImputed<-kNN(dsRaw)
+```
+
+```
+## Time difference of -6.222 secs
 ```
 
 After imputation of missing values
 
 Aggregate the number of steps taken each day.
 
-```{r,echo=TRUE}
+
+```r
 dsDailyImputed<-aggregate(steps~date,dsImputed,FUN=sum)
 ```
 
 Plot a histogram of the total number of steps taken each day after imputation.
 
-```{r,echo=TRUE}
+
+```r
 hist(dsDailyImputed$steps,main="Histogram for Number of Steps per Day after imputation",xlab="Number of steps")
 ```
 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+
 Calculate and report the mean number of steps taken per day after imputation
 
-```{r,echo=TRUE}
+
+```r
 dmeanImputed <- mean(dsDailyImputed$steps)
 print(paste("the mean number of steps taken per day after imputation is : ", as.character(dmeanImputed)))
 ```
 
+```
+## [1] "the mean number of steps taken per day after imputation is :  9752.39344262295"
+```
+
 Calculate and report the median total number of steps taken per day after imputation
 
-```{r,echo=TRUE}
+
+```r
 dmedianImputed <- median(dsDailyImputed$steps)
 print(paste("the median total number of steps taken per day after imputation is : ", as.character(dmedianImputed)))
+```
+
+```
+## [1] "the median total number of steps taken per day after imputation is :  10395"
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -150,8 +221,16 @@ print(paste("the median total number of steps taken per day after imputation is 
 
 Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r,echo=TRUE}
+
+```r
 require(lattice)
+```
+
+```
+## Loading required package: lattice
+```
+
+```r
 fn = function(x) {
   day = weekdays(as.Date(x[[2]]))
   if (day == "Saturday" | day == "Sunday") {
@@ -166,12 +245,16 @@ dsImputed$day = as.factor(day)
 
 Aggregate the average number of steps taken by 5-minute interval.
 
-```{r,echo=TRUE}
+
+```r
 x = aggregate(steps ~ interval+day, dsImputed, mean)
 ```
 
 Plot two time series (one for weekdays and the other for weekends) of the 5-minute intervals and average number of steps taken (imputed values).
 
-```{r,echo=TRUE}
+
+```r
 xyplot(steps~interval|day, data=x, type="l", xlab="Interval", ylab="Number of steps", layout=c(1,2))
 ```
+
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17.png) 
